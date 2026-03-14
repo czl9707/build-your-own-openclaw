@@ -54,4 +54,4 @@ generate_diff_md.py
 cleanup_docstrings.py
 compare_steps.py
 generate_diff.sh
-**/DIFF*.md
+**/DIFF*.md.worktrees/
