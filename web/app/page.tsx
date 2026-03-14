@@ -1,65 +1,49 @@
-import Image from "next/image";
+import Link from 'next/link'
+import { getStepsByPhase } from '@/lib/steps'
+import { PHASES } from '@/lib/constants'
+import { H1, H2, Lead, Muted } from '@/components/ui/typography'
+import { StepCard } from '@/components/step-card'
 
 export default function Home() {
+  const stepsByPhase = getStepsByPhase()
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div className="container py-12">
+      {/* Hero Section */}
+      <section className="flex flex-col items-center text-center mb-16">
+        <H1 className="mb-4">Build Your Own OpenClaw</H1>
+        <Lead className="max-w-2xl mb-8">
+          Learn to build a production-ready AI agent through 18 progressive steps.
+          From a simple chat loop to a fully autonomous multi-agent system.
+        </Lead>
+        <Link
+          href="/steps/00"
+          className="inline-flex shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground text-sm font-medium h-9 gap-1.5 px-2.5 hover:bg-primary/80 transition-colors"
+        >
+          Get Started
+        </Link>
+      </section>
+
+      {/* Steps Overview */}
+      <section className="space-y-12">
+        {Object.entries(PHASES).map(([phaseNum, phase]) => {
+          const phaseSteps = stepsByPhase[parseInt(phaseNum, 10)] || []
+
+          return (
+            <div key={phaseNum}>
+              <div className="mb-6">
+                <H2 className="mb-2">Phase {phaseNum}: {phase.name}</H2>
+                <Muted>{phase.description}</Muted>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {phaseSteps.map((step) => (
+                  <StepCard key={step.id} step={step} />
+                ))}
+              </div>
+            </div>
+          )
+        })}
+      </section>
     </div>
-  );
+  )
 }
