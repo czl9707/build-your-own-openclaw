@@ -22,7 +22,7 @@ export async function CodeBlock({ code, language, className }: CodeBlockProps) {
     >
       <div
         dangerouslySetInnerHTML={{ __html: html }}
-        className="[&>pre]:p-4 [&>pre]:text-sm [&>pre]:leading-relaxed"
+        className="[&>pre]:p-4 [&>pre]:text-sm [&>pre]:leading-relaxed [&>pre]:w-fit [&>pre]:min-w-full"
       />
     </div>
   )

@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { getStep, getSteps } from '@/lib/steps'
 import { getChangedFiles, getUnchangedFiles, type FileDiff } from '@/lib/files'
 import { DiffViewer } from '@/components/diff-viewer'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
+import { FileNavDropdown } from '@/components/file-nav-dropdown'
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -12,13 +12,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible'
 import { H2, Muted } from '@/components/ui/typography'
-import { ChevronDownIcon, FileIcon, PlusIcon, MinusIcon } from 'lucide-react'
+import { PlusIcon, MinusIcon } from 'lucide-react'
 
 interface DiffPageProps {
   params: Promise<{
@@ -115,44 +110,47 @@ export default async function DiffPage({ params }: DiffPageProps) {
         </BreadcrumbList>
       </Breadcrumb>
 
-      {/* Page Header */}
-      <div className="mb-8">
-        <H2 className="mb-2">
-          Step {fromStep.id} to Step {toStep.id}
-        </H2>
-        <Muted>
-          Comparing &quot;{fromStep.title}&quot; with &quot;{toStep.title}&quot;
-        </Muted>
+      {/* Sticky Page Header */}
+      <div className="sticky top-14 z-40 -mx-4 px-4 py-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b mb-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <H2 className="mb-1">
+              Step {fromStep.id} to Step {toStep.id}
+            </H2>
+            <Muted>
+              Comparing &quot;{fromStep.title}&quot; with &quot;{toStep.title}&quot;
+            </Muted>
+          </div>
+          {changedFiles.length > 0 && (
+            <FileNavDropdown
+              files={changedFiles.map((file) => ({
+                path: file.path,
+                status: file.status,
+                anchorId: `file-${file.path.replace(/[^a-zA-Z0-9]/g, '-')}`,
+              }))}
+            />
+          )}
+        </div>
       </div>
 
       {/* Changed Files Diff */}
       {changedFiles.length > 0 ? (
-        <Tabs defaultValue={changedFiles[0]?.path} className="w-full">
-          <TabsList className="mb-4 flex-wrap h-auto gap-1">
-            {changedFiles.map((file) => (
-              <TabsTrigger
-                key={file.path}
-                value={file.path}
-                className="flex items-center gap-1.5"
-              >
-                {getStatusIcon(file.status as ChangedStatus)}
-                <span className="font-mono text-xs">{file.path}</span>
-              </TabsTrigger>
-            ))}
-          </TabsList>
-
-          {changedFiles.map((file) => (
-            <TabsContent key={file.path} value={file.path}>
-              <DiffViewer
-                fromContent={file.fromContent ?? ''}
-                toContent={file.toContent ?? ''}
-                fromLabel={`Step ${fromStep.id}: ${fromStep.title}`}
-                toLabel={`Step ${toStep.id}: ${toStep.title}`}
-                filename={file.path}
-              />
-            </TabsContent>
-          ))}
-        </Tabs>
+        <>
+          {changedFiles.map((file) => {
+            const anchorId = `file-${file.path.replace(/[^a-zA-Z0-9]/g, '-')}`
+            return (
+              <div key={file.path} id={anchorId} className="scroll-mt-32">
+                <DiffViewer
+                  fromContent={file.fromContent ?? ''}
+                  toContent={file.toContent ?? ''}
+                  fromLabel={`Step ${fromStep.id}: ${fromStep.title}`}
+                  toLabel={`Step ${toStep.id}: ${toStep.title}`}
+                  filename={file.path}
+                />
+              </div>
+            )
+          })}
+        </>
       ) : (
         <div className="text-center py-12 text-muted-foreground">
           No file changes between these steps.
@@ -161,28 +159,25 @@ export default async function DiffPage({ params }: DiffPageProps) {
 
       {/* Unchanged Files */}
       {unchangedFiles.length > 0 && (
-        <Collapsible className="mt-8">
-          <CollapsibleTrigger className="flex items-center gap-2 w-full py-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-            <ChevronDownIcon className="size-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
-            <FileIcon className="size-4" />
-            <span>{unchangedFiles.length} unchanged files</span>
-          </CollapsibleTrigger>
-          <CollapsibleContent className="mt-2">
-            <div className="bg-muted/30 rounded-lg p-4">
-              <ul className="grid gap-1 sm:grid-cols-2 lg:grid-cols-3">
-                {unchangedFiles.map((file) => (
-                  <li
-                    key={file.path}
-                    className="flex items-center gap-2 text-sm font-mono text-muted-foreground"
-                  >
-                    <FileIcon className="size-3" />
-                    {file.path}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
+        <div className="mt-12">
+          <div className="flex items-center gap-4 mb-6">
+            <h3 className="text-sm font-medium text-muted-foreground whitespace-nowrap">
+              {unchangedFiles.length} unchanged files
+            </h3>
+            <div className="flex-1 h-px bg-border" />
+          </div>
+            {unchangedFiles.map((file) => (
+              <DiffViewer
+                key={file.path}
+                defaultOpen={false}
+                fromContent={file.fromContent ?? ''}
+                toContent={file.toContent ?? ''}
+                fromLabel={`Step ${fromStep.id}: ${fromStep.title}`}
+                toLabel={`Step ${toStep.id}: ${toStep.title}`}
+                filename={file.path}
+              />
+            ))}
+        </div>
       )}
     </div>
   )

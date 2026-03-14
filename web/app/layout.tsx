@@ -1,10 +1,18 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Geist, Red_Hat_Mono } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Header } from '@/components/header'
 
-const inter = Inter({ subsets: ['latin'] })
+const geist = Geist({
+  subsets: ['latin'],
+  variable: '--font-geist',
+})
+
+const redHatMono = Red_Hat_Mono({
+  subsets: ['latin'],
+  variable: '--font-red-hat-mono',
+})
 
 export const metadata: Metadata = {
   title: 'Build Your Own OpenClaw',
@@ -17,8 +25,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+    <html lang="en" suppressHydrationWarning className={`${geist.variable} ${redHatMono.variable}`}>
+      <body>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

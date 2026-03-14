@@ -19,7 +19,7 @@ export function StepCard({ step }: StepCardProps) {
           <CardTitle className="text-lg">{step.title}</CardTitle>
         </CardHeader>
         <CardContent>
-          <Muted className="line-clamp-2">{`Phase ${step.phase}`}</Muted>
+          <Muted className="line-clamp-2">{step.description || `Phase ${step.phase}`}</Muted>
         </CardContent>
       </Card>
     </Link>

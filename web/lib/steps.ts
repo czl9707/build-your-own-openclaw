@@ -5,6 +5,7 @@ import { PHASES, STEPS_DIR } from './constants'
 export interface Step {
   id: string
   title: string
+  description: string
   phase: number
   folderName: string
   readmePath: string
@@ -34,6 +35,15 @@ function parseTitle(readmeContent: string): string {
 }
 
 /**
+ * Parse the first blockquote from README
+ * Format: "> Description text here" -> "Description text here"
+ */
+function parseDescription(readmeContent: string): string {
+  const blockquoteMatch = readmeContent.match(/^>\s*(.+)$/m)
+  return blockquoteMatch?.[1]?.trim() ?? ''
+}
+
+/**
  * Get phase number for a step ID
  */
 function getPhase(stepId: string): number {
@@ -59,15 +69,18 @@ export function loadSteps(): Step[] {
 
       const readmePath = path.join(process.cwd(), STEPS_DIR, folderName, 'README.md')
       let title = `Step ${stepId}`
+      let description = ''
 
       if (fs.existsSync(readmePath)) {
         const content = fs.readFileSync(readmePath, 'utf-8')
         title = parseTitle(content)
+        description = parseDescription(content)
       }
 
       steps.push({
         id: stepId,
         title,
+        description,
         phase: parseInt(phaseStr, 10),
         folderName,
         readmePath,

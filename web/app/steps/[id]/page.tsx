@@ -99,7 +99,7 @@ export default async function StepPage({ params }: PageProps) {
 
       {/* README Content */}
       <div className="mb-8">
-        <ReadmeRenderer content={readmeContent} />
+        <ReadmeRenderer content={readmeContent} stepFolder={step.folderName} />
       </div>
 
       {/* Prev/Next Navigation */}

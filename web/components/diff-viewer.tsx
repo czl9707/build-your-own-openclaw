@@ -3,8 +3,14 @@
 import * as React from 'react'
 import { codeToHtml } from 'shiki'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible'
 import { cn } from '@/lib/utils'
 import { computeDiff, type DiffLine } from '@/lib/diff'
+import { ChevronDownIcon } from 'lucide-react'
 
 interface DiffViewerProps {
   fromContent: string
@@ -12,6 +18,7 @@ interface DiffViewerProps {
   fromLabel?: string
   toLabel?: string
   filename?: string
+  defaultOpen?: boolean
 }
 
 /**
@@ -67,7 +74,7 @@ function DiffLineRenderer({ line, highlightedContent }: DiffLineRendererProps) {
   return (
     <div
       className={cn(
-        'flex font-mono text-sm leading-6 border-l-2',
+        'flex font-mono text-sm leading-6 border-l-2 w-max min-w-full',
         bgColor,
         borderColor
       )}
@@ -96,35 +103,58 @@ function DiffLineRenderer({ line, highlightedContent }: DiffLineRendererProps) {
 
 /**
  * Custom hook for synced scrolling between two scroll areas
+ * Uses a unique instance ID to target specific scroll areas when multiple diffs exist
  */
-function useSyncedScroll() {
-  const leftViewportRef = React.useRef<HTMLDivElement>(null)
-  const rightViewportRef = React.useRef<HTMLDivElement>(null)
+function useSyncedScroll(instanceId: string) {
+  const [viewports, setViewports] = React.useState<{
+    left: HTMLDivElement | null
+    right: HTMLDivElement | null
+  }>({ left: null, right: null })
   const isScrolling = React.useRef(false)
 
-  const setupScrollSync = React.useCallback((side: 'left' | 'right') => {
-    const sourceRef = side === 'left' ? leftViewportRef : rightViewportRef
-    const targetRef = side === 'left' ? rightViewportRef : leftViewportRef
+  // Find viewport elements after mount
+  React.useEffect(() => {
+    const leftRoot = document.querySelector(
+      `[data-diff-instance="${instanceId}"][data-left-panel] [data-slot="scroll-area-viewport"]`
+    ) as HTMLDivElement | null
+    const rightRoot = document.querySelector(
+      `[data-diff-instance="${instanceId}"][data-right-panel] [data-slot="scroll-area-viewport"]`
+    ) as HTMLDivElement | null
 
-    return () => {
+    if (leftRoot || rightRoot) {
+      setViewports({ left: leftRoot, right: rightRoot })
+    }
+  }, [instanceId])
+
+  // Setup scroll event listeners when viewports are found
+  React.useEffect(() => {
+    const { left, right } = viewports
+    if (!left || !right) return
+
+    const syncScroll = (source: HTMLDivElement, target: HTMLDivElement) => {
       if (isScrolling.current) return
-      if (!sourceRef.current || !targetRef.current) return
 
       isScrolling.current = true
-      targetRef.current.scrollTop = sourceRef.current.scrollTop
+      target.scrollTop = source.scrollTop
 
       requestAnimationFrame(() => {
         isScrolling.current = false
       })
     }
-  }, [])
 
-  return {
-    leftViewportRef,
-    rightViewportRef,
-    onLeftScroll: setupScrollSync('left'),
-    onRightScroll: setupScrollSync('right'),
-  }
+    const onLeftScroll = () => syncScroll(left, right)
+    const onRightScroll = () => syncScroll(right, left)
+
+    left.addEventListener('scroll', onLeftScroll)
+    right.addEventListener('scroll', onRightScroll)
+
+    return () => {
+      left.removeEventListener('scroll', onLeftScroll)
+      right.removeEventListener('scroll', onRightScroll)
+    }
+  }, [viewports])
+
+  return instanceId
 }
 
 export function DiffViewer({
@@ -133,13 +163,17 @@ export function DiffViewer({
   fromLabel = 'From',
   toLabel = 'To',
   filename,
+  defaultOpen = true,
 }: DiffViewerProps) {
   const diffResult = React.useMemo(() => {
     return computeDiff(fromContent, toContent)
   }, [fromContent, toContent])
 
   const [highlightedLines, setHighlightedLines] = React.useState<Map<number, string>>(new Map())
-  const scrollSync = useSyncedScroll()
+
+  // Generate unique instance ID for scroll sync
+  const instanceId = React.useId()
+  useSyncedScroll(instanceId)
 
   // Highlight all lines with shiki
   React.useEffect(() => {
@@ -161,41 +195,6 @@ export function DiffViewer({
 
     highlightAllLines()
   }, [diffResult.lines])
-
-  // Setup scroll event listeners
-  React.useEffect(() => {
-    const leftViewport = scrollSync.leftViewportRef.current
-    const rightViewport = scrollSync.rightViewportRef.current
-
-    if (leftViewport) {
-      leftViewport.addEventListener('scroll', scrollSync.onLeftScroll)
-    }
-    if (rightViewport) {
-      rightViewport.addEventListener('scroll', scrollSync.onRightScroll)
-    }
-
-    return () => {
-      if (leftViewport) {
-        leftViewport.removeEventListener('scroll', scrollSync.onLeftScroll)
-      }
-      if (rightViewport) {
-        rightViewport.removeEventListener('scroll', scrollSync.onRightScroll)
-      }
-    }
-  }, [scrollSync])
-
-  // Find viewport elements after mount
-  React.useEffect(() => {
-    const leftRoot = document.querySelector('[data-left-panel] [data-slot="scroll-area-viewport"]') as HTMLDivElement
-    const rightRoot = document.querySelector('[data-right-panel] [data-slot="scroll-area-viewport"]') as HTMLDivElement
-
-    if (leftRoot) {
-      scrollSync.leftViewportRef.current = leftRoot
-    }
-    if (rightRoot) {
-      scrollSync.rightViewportRef.current = rightRoot
-    }
-  }, [scrollSync])
 
   const leftLines = diffResult.lines.filter(l => l.type !== 'added')
   const rightLines = diffResult.lines.filter(l => l.type !== 'removed')
@@ -225,16 +224,11 @@ export function DiffViewer({
     return map
   }, [diffResult.lines])
 
-  return (
-    <div className="w-full">
-      {filename && (
-        <div className="mb-2 px-2">
-          <span className="text-sm font-mono text-muted-foreground">{filename}</span>
-        </div>
-      )}
+  const diffContent = (
+    <>
       <div className="flex flex-col md:flex-row gap-4 h-[600px]">
         {/* Left Panel - From */}
-        <div className="flex-1 min-w-0 flex flex-col h-full" data-left-panel>
+        <div className="flex-1 min-w-0 flex flex-col h-full" data-left-panel data-diff-instance={instanceId}>
           <div className="flex items-center justify-between px-3 py-2 bg-muted/50 border border-b-0 border-border rounded-t-lg">
             <span className="text-sm font-medium text-muted-foreground">{fromLabel}</span>
             <span className="text-xs text-muted-foreground">
@@ -243,7 +237,7 @@ export function DiffViewer({
           </div>
           <div className="flex-1 min-h-0">
             <ScrollArea className="h-full border border-t-0 border-border rounded-b-lg">
-              <div className="font-mono text-sm">
+              <div className="font-mono text-sm w-fit">
                 {leftLines.map((line, leftIdx) => {
                   const originalIdx = leftLineMap.get(leftIdx) ?? 0
                   const highlightedContent = highlightedLines.get(originalIdx) ?? escapeHtml(line.content)
@@ -261,7 +255,7 @@ export function DiffViewer({
         </div>
 
         {/* Right Panel - To */}
-        <div className="flex-1 min-w-0 flex flex-col h-full" data-right-panel>
+        <div className="flex-1 min-w-0 flex flex-col h-full" data-right-panel data-diff-instance={instanceId}>
           <div className="flex items-center justify-between px-3 py-2 bg-muted/50 border border-b-0 border-border rounded-t-lg">
             <span className="text-sm font-medium text-muted-foreground">{toLabel}</span>
             <span className="text-xs text-muted-foreground">
@@ -270,7 +264,7 @@ export function DiffViewer({
           </div>
           <div className="flex-1 min-h-0">
             <ScrollArea className="h-full border border-t-0 border-border rounded-b-lg">
-              <div className="font-mono text-sm">
+              <div className="font-mono text-sm w-fit">
                 {rightLines.map((line, rightIdx) => {
                   const originalIdx = rightLineMap.get(rightIdx) ?? 0
                   const highlightedContent = highlightedLines.get(originalIdx) ?? escapeHtml(line.content)
@@ -299,6 +293,35 @@ export function DiffViewer({
           <span className="text-muted-foreground">{diffResult.removedCount} deletions</span>
         </span>
       </div>
-    </div>
+    </>
+  )
+
+  // If no filename, render without collapsible wrapper
+  if (!filename) {
+    return (
+      <div className="w-full">
+        {diffContent}
+      </div>
+    )
+  }
+
+  return (
+    <Collapsible defaultOpen={defaultOpen} className="w-full">
+      <CollapsibleTrigger className="group flex items-center gap-2 w-full py-2 px-3 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md transition-colors">
+        <ChevronDownIcon className="size-4 transition-transform group-data-[state=open]:rotate-180" />
+        <span className="font-mono text-xs">{filename}</span>
+        <span className="ml-auto text-xs text-muted-foreground">
+          {diffResult.addedCount > 0 && (
+            <span className="text-green-500 mr-2">+{diffResult.addedCount}</span>
+          )}
+          {diffResult.removedCount > 0 && (
+            <span className="text-red-500">-{diffResult.removedCount}</span>
+          )}
+        </span>
+      </CollapsibleTrigger>
+      <CollapsibleContent className="mt-2 mb-8">
+        {diffContent}
+      </CollapsibleContent>
+    </Collapsible>
   )
 }

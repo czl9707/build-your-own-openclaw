@@ -26,7 +26,7 @@ export function DiffSelector({ currentStepId, steps }: DiffSelectorProps) {
 
   return (
     <Select onValueChange={handleValueChange}>
-      <SelectTrigger>
+      <SelectTrigger className="min-w-64">
         <SelectValue placeholder="Compare with..." />
       </SelectTrigger>
       <SelectContent>
