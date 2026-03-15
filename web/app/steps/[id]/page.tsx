@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 import { getStep, getSteps } from '@/lib/steps'
 import { ReadmeRenderer } from '@/components/readme-renderer'
-import { DiffSelector } from '@/components/diff-selector'
+import { StepDiffSelector } from '@/components/step-diff-selector'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -60,7 +60,7 @@ export default async function StepPage({ params }: PageProps) {
   const nextStep = currentIndex < steps.length - 1 ? steps[currentIndex + 1] : null
 
   // Steps available for diff comparison (excluding current step)
-  const diffTargets = steps.filter((s) => s.id !== step.id)
+  const diffTargets = steps.filter((s) => parseInt(s.id) > parseInt(step.id))
 
   return (
     <div className="container py-8">
@@ -94,7 +94,7 @@ export default async function StepPage({ params }: PageProps) {
         </H1>
 
         {/* Diff action dropdown */}
-        <DiffSelector currentStepId={step.id} steps={diffTargets} />
+        <StepDiffSelector currentStepId={step.id} steps={diffTargets} />
       </div>
 
       {/* README Content */}

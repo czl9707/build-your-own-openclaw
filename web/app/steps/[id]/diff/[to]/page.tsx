@@ -1,9 +1,10 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getStep, getSteps } from '@/lib/steps'
-import { getChangedFiles, getUnchangedFiles, type FileDiff } from '@/lib/files'
+import { getChangedFiles, getUnchangedFiles } from '@/lib/files'
 import { DiffViewer } from '@/components/diff-viewer'
 import { FileNavDropdown } from '@/components/file-nav-dropdown'
+import { DiffPageSelector } from '@/components/diff-page-selector'
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -12,8 +13,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import { H2, Muted } from '@/components/ui/typography'
-import { PlusIcon, MinusIcon } from 'lucide-react'
 
 interface DiffPageProps {
   params: Promise<{
@@ -29,10 +28,10 @@ export async function generateStaticParams() {
   // Generate all valid combinations where from < to
   for (let i = 0; i < steps.length - 1; i++) {
     for (let j = i + 1; j < steps.length; j++) {
-      params.push({
-        id: steps[i].id,
-        to: steps[j].id,
-      })
+        params.push({
+          id: steps[i].id,
+          to: steps[j].id,
+        })
     }
   }
 
@@ -50,21 +49,6 @@ export async function generateMetadata({ params }: DiffPageProps) {
 
   return {
     title: `Diff: Step ${fromStep.id} to Step ${toStep.id} | Build Your Own OpenClaw`,
-  }
-}
-
-// Status type for changed files (excludes 'unchanged')
-type ChangedStatus = 'added' | 'removed' | 'modified'
-
-// Get status icon for file
-function getStatusIcon(status: ChangedStatus) {
-  switch (status) {
-    case 'added':
-      return <PlusIcon className="size-3 text-green-500" />
-    case 'removed':
-      return <MinusIcon className="size-3 text-red-500" />
-    case 'modified':
-      return null
   }
 }
 
@@ -112,15 +96,13 @@ export default async function DiffPage({ params }: DiffPageProps) {
 
       {/* Sticky Page Header */}
       <div className="sticky top-14 z-40 -mx-4 px-4 py-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b mb-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <H2 className="mb-1">
-              Step {fromStep.id} to Step {toStep.id}
-            </H2>
-            <Muted>
-              Comparing &quot;{fromStep.title}&quot; with &quot;{toStep.title}&quot;
-            </Muted>
-          </div>
+        <div className="flex items-center justify-between gap-4">
+          <DiffPageSelector
+            fromStep={fromStep}
+            toStep={toStep}
+            fromSteps={getSteps().filter((s) => parseInt(s.id) < parseInt(toStep.id))}
+            toSteps={getSteps().filter((s) => parseInt(s.id) > parseInt(fromStep.id))}
+          />
           {changedFiles.length > 0 && (
             <FileNavDropdown
               files={changedFiles.map((file) => ({

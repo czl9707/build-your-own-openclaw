@@ -1,6 +1,5 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
 import {
   Select,
   SelectContent,
@@ -11,28 +10,43 @@ import {
 import type { Step } from '@/lib/steps'
 
 interface DiffSelectorProps {
-  currentStepId: string
   steps: Step[]
+  value?: string
+  placeholder?: string
+  onSelect: (stepId: string) => void
 }
 
-export function DiffSelector({ currentStepId, steps }: DiffSelectorProps) {
-  const router = useRouter()
-
-  const handleValueChange = (value: string | null) => {
-    if (value) {
-      router.push(`/steps/${currentStepId}/diff/${value}`)
+export function DiffSelector({
+  steps,
+  value,
+  placeholder = 'Compare with...',
+  onSelect,
+}: DiffSelectorProps) {
+  const handleValueChange = (newValue: string | null) => {
+    if (newValue) {
+      onSelect(newValue)
     }
   }
 
+  const selectedStep = steps.find((s) => s.id === value)
+
   return (
-    <Select onValueChange={handleValueChange}>
-      <SelectTrigger className="min-w-64">
-        <SelectValue placeholder="Compare with..." />
+    <Select value={value} onValueChange={handleValueChange}>
+      <SelectTrigger className="min-w-48">
+        <SelectValue placeholder={placeholder}>
+          {selectedStep && (
+            <>
+              <span className="font-mono text-xs">{selectedStep.id}:</span>{' '}
+              <span className="text-xs">{selectedStep.title}</span>
+            </>
+          )}
+        </SelectValue>
       </SelectTrigger>
       <SelectContent>
-        {steps.map((target) => (
-          <SelectItem key={target.id} value={target.id}>
-            Step {target.id}: {target.title}
+        {steps.map((step) => (
+          <SelectItem key={step.id} value={step.id}>
+            <span className="font-mono text-xs">{step.id}:</span>{' '}
+            <span className="text-xs">{step.title}</span>
           </SelectItem>
         ))}
       </SelectContent>
