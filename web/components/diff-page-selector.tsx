@@ -20,18 +20,20 @@ export function DiffPageSelector({
   const router = useRouter()
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
       <DiffSelector
         steps={fromSteps}
         value={fromStep.id}
         placeholder="From step..."
+        label="From"
         onSelect={(newFromId) => router.push(`/steps/${newFromId}/diff/${toStep.id}`)}
       />
-      <span className="text-muted-foreground">→</span>
+      <span className="hidden text-muted-foreground sm:block mb-2">→</span>
       <DiffSelector
         steps={toSteps}
         value={toStep.id}
         placeholder="To step..."
+        label="To"
         onSelect={(newToId) => router.push(`/steps/${fromStep.id}/diff/${newToId}`)}
       />
     </div>

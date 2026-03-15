@@ -13,6 +13,7 @@ interface DiffSelectorProps {
   steps: Step[]
   value?: string
   placeholder?: string
+  label?: string
   onSelect: (stepId: string) => void
 }
 
@@ -20,6 +21,7 @@ export function DiffSelector({
   steps,
   value,
   placeholder = 'Compare with...',
+  label,
   onSelect,
 }: DiffSelectorProps) {
   const handleValueChange = (newValue: string | null) => {
@@ -31,8 +33,12 @@ export function DiffSelector({
   const selectedStep = steps.find((s) => s.id === value)
 
   return (
-    <Select value={value} onValueChange={handleValueChange}>
-      <SelectTrigger className="min-w-48">
+    <div className="flex flex-col gap-1.5">
+      {label && (
+        <label className="text-xs font-medium text-muted-foreground">{label}</label>
+      )}
+      <Select value={value} onValueChange={handleValueChange}>
+        <SelectTrigger className="w-full sm:w-auto sm:min-w-48">
         <SelectValue placeholder={placeholder}>
           {selectedStep && (
             <>
@@ -50,6 +56,7 @@ export function DiffSelector({
           </SelectItem>
         ))}
       </SelectContent>
-    </Select>
+      </Select>
+    </div>
   )
 }

@@ -96,7 +96,7 @@ export default async function DiffPage({ params }: DiffPageProps) {
 
       {/* Sticky Page Header */}
       <div className="sticky top-14 z-40 -mx-4 px-4 py-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b mb-8">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <DiffPageSelector
             fromStep={fromStep}
             toStep={toStep}
@@ -105,6 +105,7 @@ export default async function DiffPage({ params }: DiffPageProps) {
           />
           {changedFiles.length > 0 && (
             <FileNavDropdown
+              label="Files"
               files={changedFiles.map((file) => ({
                 path: file.path,
                 status: file.status,

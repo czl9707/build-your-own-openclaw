@@ -18,6 +18,7 @@ interface FileItem {
 
 interface FileNavDropdownProps {
   files: FileItem[]
+  label?: string
 }
 
 function getStatusIcon(status: string) {
@@ -31,7 +32,7 @@ function getStatusIcon(status: string) {
   }
 }
 
-export function FileNavDropdown({ files }: FileNavDropdownProps) {
+export function FileNavDropdown({ files, label }: FileNavDropdownProps) {
   const [selectedPath, setSelectedPath] = React.useState<string | null>(null)
 
   const handleValueChange = (anchorId: string | null) => {
@@ -47,8 +48,12 @@ export function FileNavDropdown({ files }: FileNavDropdownProps) {
   }
 
   return (
-    <Select onValueChange={handleValueChange}>
-      <SelectTrigger className="min-w-64">
+    <div className="flex flex-col gap-1.5">
+      {label && (
+        <label className="text-xs font-medium text-muted-foreground">{label}</label>
+      )}
+      <Select onValueChange={handleValueChange}>
+        <SelectTrigger className="w-full sm:w-auto sm:min-w-48">
         <SelectValue placeholder={`${files.length} files`}>
           {selectedPath && (
             <span className="font-mono text-xs">{selectedPath}</span>
@@ -65,6 +70,7 @@ export function FileNavDropdown({ files }: FileNavDropdownProps) {
           </SelectItem>
         ))}
       </SelectContent>
-    </Select>
+      </Select>
+    </div>
   )
 }
