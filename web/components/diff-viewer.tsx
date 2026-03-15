@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/collapsible'
 import { cn } from '@/lib/utils'
 import { computeDiff, type DiffLine } from '@/lib/diff'
+import { useIsMobile } from '@/lib/hooks'
 import { ChevronDownIcon } from 'lucide-react'
 
 interface DiffViewerProps {
@@ -52,9 +53,10 @@ function escapeHtml(text: string): string {
 interface DiffLineRendererProps {
   line: DiffLine
   highlightedContent: string
+  isMobile?: boolean
 }
 
-function DiffLineRenderer({ line, highlightedContent }: DiffLineRendererProps) {
+function DiffLineRenderer({ line, highlightedContent, isMobile = false }: DiffLineRendererProps) {
   const bgColor =
     line.type === 'added'
       ? 'bg-green-500/20'
@@ -71,6 +73,37 @@ function DiffLineRenderer({ line, highlightedContent }: DiffLineRendererProps) {
 
   const prefix = line.type === 'added' ? '+' : line.type === 'removed' ? '-' : ' '
 
+  // Mobile: Unified diff view - single line number column, more compact
+  if (isMobile) {
+    const lineNumber = line.type === 'added' ? line.newLineNumber : line.oldLineNumber
+    return (
+      <div
+        className={cn(
+          'flex font-mono text-xs leading-5 border-l-2 min-w-full',
+          bgColor,
+          borderColor
+        )}
+      >
+        <span className="w-8 shrink-0 select-none text-right pr-2 text-muted-foreground/50 border-r border-border/50">
+          {lineNumber ?? ''}
+        </span>
+        <span
+          className={cn(
+            'w-5 shrink-0 select-none text-center',
+            line.type === 'added' ? 'text-green-500' : line.type === 'removed' ? 'text-red-500' : 'text-muted-foreground/30'
+          )}
+        >
+          {prefix}
+        </span>
+        <span
+          className="pl-2 whitespace-pre overflow-x-auto"
+          dangerouslySetInnerHTML={{ __html: highlightedContent }}
+        />
+      </div>
+    )
+  }
+
+  // Desktop: Side-by-side view with two line number columns
   return (
     <div
       className={cn(
@@ -165,6 +198,7 @@ export function DiffViewer({
   filename,
   defaultOpen = true,
 }: DiffViewerProps) {
+  const isMobile = useIsMobile()
   const diffResult = React.useMemo(() => {
     return computeDiff(fromContent, toContent)
   }, [fromContent, toContent])
@@ -226,9 +260,9 @@ export function DiffViewer({
 
   const diffContent = (
     <>
-      <div className="flex flex-col md:flex-row gap-4 h-[600px]">
+      <div className="flex flex-col md:flex-row gap-4 h-[400px] md:h-[600px]">
         {/* Left Panel - From */}
-        <div className="flex-1 min-w-0 flex flex-col h-full" data-left-panel data-diff-instance={instanceId}>
+        <div className="flex-1 min-w-0 flex flex-col h-1/2 md:h-full" data-left-panel data-diff-instance={instanceId}>
           <div className="flex items-center justify-between px-3 py-2 bg-muted/50 border border-b-0 border-border rounded-t-lg">
             <span className="text-sm font-medium text-muted-foreground">{fromLabel}</span>
             <span className="text-xs text-muted-foreground">
@@ -246,6 +280,7 @@ export function DiffViewer({
                       key={`left-${leftIdx}`}
                       line={line}
                       highlightedContent={highlightedContent}
+                      isMobile={isMobile}
                     />
                   )
                 })}
@@ -255,7 +290,7 @@ export function DiffViewer({
         </div>
 
         {/* Right Panel - To */}
-        <div className="flex-1 min-w-0 flex flex-col h-full" data-right-panel data-diff-instance={instanceId}>
+        <div className="flex-1 min-w-0 flex flex-col h-1/2 md:h-full" data-right-panel data-diff-instance={instanceId}>
           <div className="flex items-center justify-between px-3 py-2 bg-muted/50 border border-b-0 border-border rounded-t-lg">
             <span className="text-sm font-medium text-muted-foreground">{toLabel}</span>
             <span className="text-xs text-muted-foreground">
@@ -273,6 +308,7 @@ export function DiffViewer({
                       key={`right-${rightIdx}`}
                       line={line}
                       highlightedContent={highlightedContent}
+                      isMobile={isMobile}
                     />
                   )
                 })}
