@@ -7,23 +7,6 @@ llm:
   temperature: 0.7
   max_tokens: 2048
 
-# --- Alternative provider examples ---
-
-# MiniMax (OpenAI-compatible, 204K context, get your key at https://platform.minimax.io)
-# llm:
-#   provider: minimax
-#   model: openai/MiniMax-M2.5           # or openai/MiniMax-M2.5-highspeed for faster output
-#   api_key: your-minimax-api-key
-#   api_base: https://api.minimax.io/v1
-#   temperature: 0.7                     # MiniMax requires temperature in (0.0, 1.0]
-#   max_tokens: 2048
-
-# Anthropic
-# llm:
-#   provider: anthropic
-#   model: claude-sonnet-4-20250514
-#   api_key: sk-ant-your-anthropic-key
-
 default_agent: pickle
 
 # Get your API key at https://brave.com/search/api/

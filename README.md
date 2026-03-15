@@ -60,34 +60,7 @@ Before running any step, you need to configure your API keys:
 
 2. **Edit `config.user.yaml`** with your API keys:
    - See [LiteLLM providers](https://docs.litellm.ai/docs/providers) for the full list of supported providers
-   - Provider examples:
-
-   **OpenAI:**
-   ```yaml
-   llm:
-     provider: openai
-     model: gpt-4
-     api_key: sk-your-openai-api-key
-   ```
-
-   **MiniMax** (OpenAI-compatible, 204K context window):
-   ```yaml
-   llm:
-     provider: minimax
-     model: openai/MiniMax-M2.5        # or openai/MiniMax-M2.5-highspeed
-     api_key: your-minimax-api-key
-     api_base: https://api.minimax.io/v1
-     temperature: 0.7                   # must be in (0.0, 1.0]
-   ```
-   Get your API key at [MiniMax Platform](https://platform.minimax.io).
-
-   **Anthropic:**
-   ```yaml
-   llm:
-     provider: anthropic
-     model: claude-sonnet-4-20250514
-     api_key: sk-ant-your-anthropic-key
-   ```
+   - Check out [Provider Examples](PROVIDER_EXAMPLES.md) for some examples
 
 3. Just follow each steps, read and try it out.
 
