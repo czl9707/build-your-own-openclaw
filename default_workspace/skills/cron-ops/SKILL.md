@@ -18,6 +18,15 @@ Examples:
 - `*/30 * * * *` - Every 30 minutes
 - `0 0 * * 0` - Every Sunday at midnight
 
+## One-Off Jobs
+
+Set `one_off: true` for jobs that should run only once. After execution, the cron is automatically deleted.
+
+Use this for:
+- Reminders at a specific future time
+- Scheduled one-time tasks
+- Delayed notifications
+
 ## Operations
 
 ### Create
@@ -26,7 +35,8 @@ Examples:
 2. Determine the schedule
 3. Ask which agent should run the task
 4. Ask for a brief description of what the cron does
-5. Create the directory and CRON.md file
+5. If the task should run only once (e.g., "remind me tomorrow"), set `one_off: true`
+6. Create the directory and CRON.md file
 
 ### List
 
@@ -62,6 +72,7 @@ name: Cron Name
 description: Brief description of what this cron does
 agent: pickle
 schedule: "0 9 * * *"
+one_off: false  # Set to true for one-time jobs (optional, defaults to false)
 ---
 
 Task description for the agent to execute.
@@ -77,4 +88,17 @@ schedule: "0 9 * * *"
 ---
 
 Check my inbox and use post_message to send me a summary.
+```
+
+**One-off reminder:**
+```markdown
+---
+name: Meeting Reminder
+description: Reminder for tomorrow's meeting
+agent: pickle
+schedule: "30 14 21 3 *"
+one_off: true
+---
+
+Use post_message to remind me about the team meeting in 15 minutes.
 ```
