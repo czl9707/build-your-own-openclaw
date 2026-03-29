@@ -97,8 +97,9 @@ class AgentSession:
             assistant_msg: Message = {
                 "role": "assistant",
                 "content": content,
-                "tool_calls": tool_call_dicts,
             }
+            if tool_call_dicts:
+                assistant_msg["tool_calls"] = tool_call_dicts
             self.state.add_message(assistant_msg)
 
             if not tool_calls:
