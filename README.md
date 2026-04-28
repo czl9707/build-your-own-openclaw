@@ -15,7 +15,7 @@ A step-by-step tutorial to build your own AI agent, from a simple chat loop to a
 
 ## Tutorial Structure
 
-### Phase 1: Capable Single Agent (Steps 1-7)
+### Phase 1: Capable Single Agent (Steps 0-6)
 Build a fully-functional agent that can chat, use tools, learn skills, remember conversations, and access the internet.
 
 - [**00-chat-loop**](./00-chat-loop/) - Just a Chat Loop
@@ -26,7 +26,7 @@ Build a fully-functional agent that can chat, use tools, learn skills, remember 
 - [**05-compaction**](./05-compaction/) - Pack you history and carry on...
 - [**06-web-tools**](./06-web-tools/) - Your Agent want to see the bigger world.
 
-### Phase 2: Event-Driven Architecture (Steps 8-11)
+### Phase 2: Event-Driven Architecture (Steps 7-10)
 Refactor to event-driven architecture for scalability and multi-platform support.
 
 - [**07-event-driven**](./07-event-driven/) - Expose you agent beyond CLI.
@@ -34,7 +34,7 @@ Refactor to event-driven architecture for scalability and multi-platform support
 - [**09-channels**](./09-channels/) - Talk to your agent from on your phone.
 - [**10-websocket**](./10-websocket/) - Want to interact with you agent programatically?
 
-### Phase 3: Autonomous & Multi-Agent (Steps 12-16)
+### Phase 3: Autonomous & Multi-Agent (Steps 11-15)
 Add scheduled tasks, agent collaboration, and intelligent routing.
 
 - [**11-multi-agent-routing**](./11-multi-agent-routing/) - Route right job to right agent.
@@ -43,7 +43,7 @@ Add scheduled tasks, agent collaboration, and intelligent routing.
 - [**14-post-message-back**](./14-post-message-back/) - Your Agent want to Speak to you.
 - [**15-agent-dispatch**](./15-agent-dispatch/) - Your Agent want friends to work with!
 
-### Phase 4: Production & Scale (Steps 17-18)
+### Phase 4: Production & Scale (Steps 16-17)
 Features for reliability and long-term memory.
 
 - [**16-concurrency-control**](./16-concurrency-control/) - Too many Pickle are running at the same time?
