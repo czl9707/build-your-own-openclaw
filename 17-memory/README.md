@@ -31,7 +31,7 @@ cookie: Yes, <content>.
 cd 17-memory
 uv run my-bot chat
 
-# You: Remember that I my name is Zane
+# You: Remember that my name is Zane
 # Pickle: Got it! I've saved that preference.
 
 uv run my-bot chat

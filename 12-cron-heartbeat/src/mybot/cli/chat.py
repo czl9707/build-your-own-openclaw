@@ -100,7 +100,7 @@ class ChatLoop:
 
                 try:
                     response = await asyncio.wait_for(
-                        self.response_queue.get(), timeout=60.0
+                        self.response_queue.get(), timeout=120.0
                     )
 
                     self.display_agent_response(response.content)
