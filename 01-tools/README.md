@@ -19,7 +19,7 @@ Giving the agent the ability to actually *do* things, from chatting only to taki
 
 ## Key Components
 
-- **Stop Reason**: Chat Loop can stop because of "end_turn" or "tool_use"
+- **Stop Reason**: Chat loop branches on `stop_reason` — `"tool_calls"` to execute tools, `"stop"` for normal completion, `"length"` for truncated responses
 - **Tools**: Manages available tools and executes tool calls
 - **Tool Calling Loop**: Agent calls tools, adds results to history, continues conversation
 
@@ -59,10 +59,11 @@ class AgentSession:
         self.state.add_message(user_msg)
 
         tool_schemas = self.tools.get_tool_schemas()
+        logger = logging.getLogger(__name__)
 
         while True:
             messages = self.state.build_messages()
-            content, tool_calls = await self.agent.llm.chat(messages, tool_schemas)
+            content, tool_calls, stop_reason = await self.agent.llm.chat(messages, tool_schemas)
 
             assistant_msg: Message = {
                 "role": "assistant",
@@ -71,10 +72,17 @@ class AgentSession:
             }
             self.state.add_message(assistant_msg)
 
-            if not tool_calls:
-                break
+            if stop_reason == "tool_calls":
+                await self._handle_tool_calls(tool_calls)
+                continue
 
-            await self._handle_tool_calls(tool_calls)
+            if stop_reason == "length":
+                logger.warning(
+                    "LLM response truncated (max_tokens reached), "
+                    "returning partial response"
+                )
+
+            break
 
         return content
 ```

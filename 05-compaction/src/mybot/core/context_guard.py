@@ -134,7 +134,7 @@ class ContextGuard:
 
         summary_prompt = COMPACT_PROMPT.format(conversation=old_text)
 
-        response, _ = await state.agent.llm.chat(
+        response, _, _ = await state.agent.llm.chat(
             [{"role": "user", "content": summary_prompt}],
             [],  # No tools needed
         )

@@ -2,6 +2,7 @@
 
 import asyncio
 import json
+import logging
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -91,10 +92,11 @@ class AgentSession:
         self.state.add_message(user_msg)
 
         tool_schemas = self.tools.get_tool_schemas()
+        logger = logging.getLogger(__name__)
 
         while True:
             messages = self.state.build_messages()
-            content, tool_calls = await self.agent.llm.chat(messages, tool_schemas)
+            content, tool_calls, stop_reason = await self.agent.llm.chat(messages, tool_schemas)
 
             tool_call_dicts: list[ChatCompletionMessageToolCallParam] = [
                 {
@@ -112,12 +114,21 @@ class AgentSession:
                 assistant_msg["tool_calls"] = tool_call_dicts
             self.state.add_message(assistant_msg)
 
-            if not tool_calls:
-                break
+            if stop_reason == "tool_calls":
+                await self._handle_tool_calls(tool_calls)
+                continue
 
-            await self._handle_tool_calls(tool_calls)
+            if stop_reason == "length":
+                logger.warning(
+                    "LLM response truncated (max_tokens reached), "
+                    "returning partial response"
+                )
 
-            continue
+            if stop_reason == "content_filter":
+                logger.warning("LLM response filtered by content filter")
+                return content if content else "I'm unable to respond to that request."
+
+            break
 
         return content
 
