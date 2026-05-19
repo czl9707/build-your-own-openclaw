@@ -45,17 +45,31 @@ class PromptBuilder:
 
         return "\n\n".join(layers)
 
+    def _substitute_paths(self, text: str) -> str:
+        """Replace {{placeholder}} tokens with resolved config paths."""
+        cfg = self.context.config
+        replacements = {
+            "{{workspace}}": str(cfg.workspace),
+            "{{skills_path}}": str(cfg.skills_path),
+            "{{crons_path}}": str(cfg.crons_path),
+            "{{memories_path}}": str(cfg.memories_path),
+            "{{agents_path}}": str(cfg.agents_path),
+        }
+        for placeholder, value in replacements.items():
+            text = text.replace(placeholder, value)
+        return text
+
     def _load_bootstrap_context(self) -> str:
         """Load BOOTSTRAP.md + AGENTS.md + cron list."""
         parts = []
 
         bootstrap_path = self.context.config.workspace / "BOOTSTRAP.md"
         if bootstrap_path.exists():
-            parts.append(bootstrap_path.read_text().strip())
+            parts.append(self._substitute_paths(bootstrap_path.read_text().strip()))
 
         agents_path = self.context.config.workspace / "AGENTS.md"
         if agents_path.exists():
-            parts.append(agents_path.read_text().strip())
+            parts.append(self._substitute_paths(agents_path.read_text().strip()))
 
         # Dynamic cron list
         cron_list = self._format_cron_list()
