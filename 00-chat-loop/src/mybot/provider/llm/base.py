@@ -50,6 +50,8 @@ class LLMProvider:
             "model": self.model,
             "messages": messages,
             "api_key": self.api_key,
+            "temperature": self.temperature,
+            "max_tokens": self.max_tokens,
         }
 
         if self.api_base:
