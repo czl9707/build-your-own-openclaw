@@ -19,7 +19,7 @@ cp default_workspace/config.example.yaml default_workspace/config.user.yaml
 
 ## 关键组件
 
-- **Stop Reason**：聊天循环可能因为 "end_turn" 或 "tool_use" 而停止
+- **Stop Reason**：聊天循环根据 `stop_reason` 分支 — `"tool_calls"` 执行工具，`"stop"` 正常结束，`"length"` 响应被截断
 - **Tools**：管理可用工具并执行工具调用
 - **Tool Calling Loop**：智能体调用工具，将结果添加到历史，继续对话
 
@@ -59,10 +59,11 @@ class AgentSession:
         self.state.add_message(user_msg)
 
         tool_schemas = self.tools.get_tool_schemas()
+        logger = logging.getLogger(__name__)
 
         while True:
             messages = self.state.build_messages()
-            content, tool_calls = await self.agent.llm.chat(messages, tool_schemas)
+            content, tool_calls, stop_reason = await self.agent.llm.chat(messages, tool_schemas)
 
             assistant_msg: Message = {
                 "role": "assistant",
@@ -71,14 +72,31 @@ class AgentSession:
             }
             self.state.add_message(assistant_msg)
 
-            if not tool_calls:
-                break
+            if stop_reason == "tool_calls":
+                await self._handle_tool_calls(tool_calls)
+                continue
 
-            await self._handle_tool_calls(tool_calls)
+            if stop_reason == "length":
+                logger.warning(
+                    "LLM response truncated (max_tokens reached), "
+                    "returning partial response"
+                )
+
+            break
 
         return content
 ```
 
+
+## 设计说明
+
+### 为什么工具是硬编码的
+
+工具通过 `ToolRegistry.with_builtins()` 在 Python 中注册，而不是在 `AGENT.md` frontmatter 中声明。
+
+基于 YAML 的工具配置涉及的设计决策超出了本教程范围。`BaseTool` 抽象已经让工具在代码层面保持可插拔。
+
+OpenClaw 用插件系统和按智能体配置的 JSON 来处理这件事——但不在本教程范围内。
 
 ## 试一试
 

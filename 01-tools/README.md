@@ -88,6 +88,16 @@ class AgentSession:
 ```
 
 
+## Notes
+
+### Why Tools Are Hardcoded
+
+Tools are registered via `ToolRegistry.with_builtins()` in Python, not declared in `AGENT.md` frontmatter.
+
+YAML-based tool config involves design decisions beyond the scope of this tutorial. The `BaseTool` abstraction already keeps tools pluggable in code.
+
+OpenClaw handles this with a plugin system and per-agent JSON config — but that's out of scope for this tutorial.
+
 ## Try it out
 
 ```bash
