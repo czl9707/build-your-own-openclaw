@@ -14,7 +14,7 @@ llm:
 ```yaml
 llm:
     provider: minimax
-    model: openai/MiniMax-M2.5
+    model: openai/MiniMax-M3
     api_key: your-minimax-api-key
     api_base: https://api.minimax.io/v1
     temperature: 0.7
