@@ -1,5 +1,21 @@
 # Provider Example Configuration
 
+### Atlas Cloud (OpenAI-compatible, 59 frontier LLMs) ⭐ Recommended
+
+[Atlas Cloud](https://www.atlascloud.ai/?utm_source=github&utm_medium=link&utm_campaign=build-your-own-openclaw) provides 59 frontier models via a single OpenAI-compatible endpoint — the easiest way to get started with this tutorial.
+
+```yaml
+llm:
+    provider: openai
+    model: openai/deepseek-ai/deepseek-v4-pro   # or any of the 59 models
+    api_key: your-atlas-cloud-api-key
+    api_base: https://api.atlascloud.ai/v1
+    temperature: 0.7
+```
+Get your API key at [Atlas Cloud Console](https://www.atlascloud.ai/console/coding-plan). [View all 59 models](https://www.atlascloud.ai/models).
+
+---
+
 ### OpenAI
 
 ```yaml
