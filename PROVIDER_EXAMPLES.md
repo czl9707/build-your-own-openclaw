@@ -74,3 +74,15 @@ llm:
     api_key: your-google-api-key
 ```
 Get your API key at [Google AI Studio](https://aistudio.google.com/app/apikey).
+
+### DeepSeek
+
+```yaml
+llm:
+    provider: deepseek
+    model: deepseek/deepseek-v4-flash # or "deepseek/deepseek-v4-pro"
+    api_key: sk-your-deepseek-api-key
+    api_base: https://api.deepseek.com
+
+```
+Get your API key at [Deepseek](https://platform.deepseek.com/)
