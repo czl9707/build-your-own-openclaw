@@ -47,6 +47,16 @@ class HistoryStore:
 ```
 
 
+## Alternative: SQLite
+
+The file-based store is deliberately simple, and it's still how many agents
+handle persistence today. If you later need concurrent writers, richer queries,
+or a single file to back up, SQLite is a natural next step. Because everything
+goes through the `HistoryStore` interface, swapping the backend stays an
+implementation detail - the rest of the agent never changes. A
+`SQLiteHistoryStore` would implement the same `create_session` /
+`save_message` / `get_messages` methods, selectable from config.
+
 ## Try it out
 
 ```bash
