@@ -48,7 +48,7 @@ class HistoryStore:
 
 ## Note
 
-The file-based store is deliberately simple, and it's still many agents handle persistence today. The persistence would naturally grow into a database solution as the project scale up. Sqlite, Postgre, you name them. This project already have the `HistoryStore` abstraction, building a more sophisticated persistence class should not be affect other pieces in this project.
+The file-based store is deliberately simple, and it's still many agents handle persistence today. The persistence would naturally grow into a database solution as the project scale up. Sqlite, Postgres, you name them. This project already have the `HistoryStore` abstraction, building a more sophisticated persistence class should not be affect other pieces in this project.
 
 ## Try it out
 
