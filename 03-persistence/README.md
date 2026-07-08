@@ -46,16 +46,9 @@ class HistoryStore:
         """Get all messages for a session."""
 ```
 
+## Note
 
-## Alternative: SQLite
-
-The file-based store is deliberately simple, and it's still how many agents
-handle persistence today. If you later need concurrent writers, richer queries,
-or a single file to back up, SQLite is a natural next step. Because everything
-goes through the `HistoryStore` interface, swapping the backend stays an
-implementation detail - the rest of the agent never changes. A
-`SQLiteHistoryStore` would implement the same `create_session` /
-`save_message` / `get_messages` methods, selectable from config.
+The file-based store is deliberately simple, and it's still many agents handle persistence today. The persistence would naturally grow into a database solution as the project scale up. Sqlite, Postgre, you name them. This project already have the `HistoryStore` abstraction, building a more sophisticated persistence class should not be affect other pieces in this project.
 
 ## Try it out
 
