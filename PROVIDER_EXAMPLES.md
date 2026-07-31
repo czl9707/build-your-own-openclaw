@@ -21,6 +21,31 @@ llm:
 ```
 Get your API key at [MiniMax Platform](https://platform.minimax.io).
 
+#### MiniMax M2.7
+
+```yaml
+llm:
+    provider: minimax
+    model: openai/MiniMax-M2.7
+    api_key: your-minimax-api-key
+    api_base: https://api.minimax.io/v1
+    temperature: 0.7
+```
+
+#### MiniMax China endpoint
+
+The China endpoint is served from `api.minimaxi.com` and is recommended for
+access from within mainland China.
+
+```yaml
+llm:
+    provider: minimax
+    model: openai/MiniMax-M3
+    api_key: your-minimax-api-key
+    api_base: https://api.minimaxi.com/v1
+    temperature: 0.7
+```
+
 ### Z.ai Coding Plan
 
 ```yaml
