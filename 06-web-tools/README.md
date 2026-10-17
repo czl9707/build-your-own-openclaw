@@ -89,6 +89,23 @@ uv run my-bot chat
 # Which one were you curious about?
 ```
 
+## Alternative: Search through MCP
+
+[Parallel Search MCP](https://docs.parallel.ai/integrations/mcp/search-mcp) offers web search and page fetching at `https://search.parallel.ai/mcp`. An MCP client can connect over Streamable HTTP without an account or API key. Anonymous search uses Fast mode and has lower rate limits than authenticated access.
+
+This is an optional extension exercise: the tutorial currently supports Brave for `websearch` and Crawl4AI for `webread`, and does not include an MCP client. Setting `provider: parallel` in `config.user.yaml` will not enable it.
+
+To explore a different backend behind the same interface, implement a `WebSearchProvider` adapter using an [MCP client](https://github.com/modelcontextprotocol/python-sdk). Call the server's `web_search` tool with an `objective` and a `search_queries` list, for example:
+
+```json
+{
+  "objective": "Find the official Python asyncio documentation",
+  "search_queries": ["Python asyncio official documentation"]
+}
+```
+
+Map each item in the tool's structured `results` to `SearchResult`: use `title` (or an empty string when absent), `url`, and joined `excerpts` as `snippet`. The existing `websearch` tool can then format the results without knowing which backend produced them. You would also need to extend the configuration model and `WebSearchProvider.from_config` to select the adapter. Keep `webread` separate; replacing it with the server's `web_fetch` tool would require its own `WebReadProvider` adapter.
+
 ## What's Next
 
 [Step 07: Event-Driven](../07-event-driven/) - The great refactor to event-based architecture
